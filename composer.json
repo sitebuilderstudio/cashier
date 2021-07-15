@@ -1,0 +1,23 @@
+{
+    "name": "joekneeland/cashier",
+    "description": "Testing using the ActiveCampaign PHP API wrapper with Composer.",
+    "authors": [
+        {
+            "name": "Matt Thommes",
+            "email": "matt@activecampaign.com",
+            "homepage": "http://www.activecampaign.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "activecampaign/api-php": "1.0.0",
+        "katzgrau/klogger": "dev-master",
+        "stripe/stripe-php": "^7.89"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Cashier\\": "includes/"
+        }
+    }
+}

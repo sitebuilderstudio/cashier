@@ -1,0 +1,38 @@
+#country {
+    width: 100%;
+}
+
+#subscribe-form-container {
+    width: 500px;
+    margin: 0 auto;
+    padding-top: 100px;
+    padding-bottom: 200px;
+}
+
+th {
+    width: 250px;
+}
+
+td {
+    width: 250px;
+}
+
+input {
+    width: 100%;
+}
+
+#subscribe-form-intro-text {
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+h2#billing-details-title {
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+tr {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
