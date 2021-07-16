@@ -46,9 +46,6 @@ if ( isset( $_GET['do'] ) ) {
 		$subscription = "standard";
 	}
 
-	//include Stripe library
-	require( CASHIER_PATH_TO_STRIPE_INIT );
-
 	//get keys from plugin options
 	$cashier_options = get_option( 'cashier_settings' );
 

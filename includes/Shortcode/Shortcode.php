@@ -99,8 +99,6 @@ class Shortcode {
 		$cashier_options       = get_option( 'cashier_settings' );
 		$stripe_api_secret_key = $cashier_options['options_secret_key'];
 
-		require( CASHIER_PATH_TO_STRIPE_INIT );
-
 		$coupon = $_POST['coupon'];
 
 		//check coupon via stripe api
@@ -176,9 +174,6 @@ class Shortcode {
 			exit;
 		}
 
-		//include Stripe library
-		require( CASHIER_PATH_TO_STRIPE_INIT );
-
 		//get keys from plugin options
 		$cashier_options = get_option( 'cashier_settings' );
 
@@ -205,24 +200,9 @@ class Shortcode {
 			[ "invoice_settings" => [ "default_payment_method" => $_POST['payment_method'] ] ]
 		);
 
-		//add their stripe customer id to wp db
-		global $wpdb;
-		$table = $wpdb->prefix . 'stripe_builder_customer_ids';
-
-		$data   = array(
-			'wp_uid'                => $user_id,
-			'sb_stripe_customer_id' => $customer->id,
-			'email_address'         => $customer->email
-		);
-		$format = array(
-			'%d',
-			'%s',
-			'%s'
-		);
-
-		//get row id to pass through form to email notifications
-		$wpdb->insert( $table, $data, $format );
-		$row_id = $wpdb->insert_id;
+		// add the customer stripe info to usermenta
+		update_user_meta( $user_id, 'cashier_stripe_id', $customer->id );
+		update_user_meta( $user_id, 'cashier_stripe_email', $customer->email );
 
 		//if there's a coupon
 		if ( isset( $_POST['coupon'] ) ) {
@@ -247,7 +227,6 @@ class Shortcode {
 						],
 						'coupon'          => $_POST['coupon'],
 					] );
-
 
 				}
 

@@ -44,8 +44,6 @@ define( 'CASHIER_FILE_PATH', __FILE__ );
 define( 'CASHIER_DIR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CASHIER_DIR_URL', plugin_dir_url( __FILE__ ) );
 define( 'CASHIER_VERSION', '1.0.0' );
-define( 'CASHIER_PATH_TO_STRIPE_INIT', CASHIER_DIR_PATH . 'stripe-library/stripe-php-7.38.0/init.php' );
-
 
 /**
  * The code that runs during plugin activation.
@@ -77,7 +75,7 @@ function preint( $value ) {
 	echo '</pre>';
 }
 
-function preintq($q) {
+function preintq( $q ) {
 	echo "<div style='margin:20px 16px 0px 0; padding: 16px; border-left:3px solid teal; background: hsl(50deg 50% 100%);' class='preintq'>$q</div>";
 }
 

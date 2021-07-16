@@ -23,39 +23,12 @@ class Cashier_Activator {
 		$this->database_setup();
 	}
 
-	/**
-	 * Short Description. (use period)
-	 *
-	 * https://wpmudev.com/blog/creating-database-tables-for-plugins/
-	 *
-	 * @since    1.0.0
-	 */
-	public static function activate() {
-
-	}
-
 	public static function database_setup() {
-
 
 		global $wpdb;
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 		$charset_collate = $wpdb->get_charset_collate();
-
-		// donations
-		$table_name = $wpdb->prefix . 'cash_donations';
-		$sql        = "CREATE TABLE $table_name (
-          id int(11) NOT NULL AUTO_INCREMENT,
-          name varchar(150) NOT NULL,
-          phone varchar(99) NOT NULL,
-          email varchar(150) NOT NULL,
-          type varchar(99) NOT NULL,
-          note varchar(999) NOT NULL,
-          amount int(99) NOT NULL,
-          timestamp timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-          PRIMARY KEY  (id)
-	) $charset_collate;";
-		dbDelta( $sql );
 
 		// invoices
 		$table_name = $wpdb->prefix . 'cash_invoices';
@@ -91,25 +64,11 @@ class Cashier_Activator {
           payer_stripe_id varchar(35) NOT NULL,
           payee_uid int(11) NOT NULL,
           payee_stripe_id varchar(35) NOT NULL,
+          type varchar(35) NOT NULL,
           date int(11) NOT NULL,
           PRIMARY KEY  (id)
 	) $charset_collate;";
 		dbDelta( $sql );
 
-
-		// tiers
-		$table_name = $wpdb->prefix . 'cash_tiers';
-		$sql        = "CREATE TABLE $table_name (
-          id int(11) NOT NULL AUTO_INCREMENT,
-          tier_group int(9) DEFAULT NULL,
-          user_id int(9) DEFAULT NULL,
-          level int(1) DEFAULT NULL,
-          earnings int(5) NOT NULL,
-          percent int(2) NOT NULL,
-          PRIMARY KEY  (id)
-	) $charset_collate;";
-
-		dbDelta( $sql );
-		add_option( "cashier_db_version", CASHIER_VERSION );
 	}
 }
