@@ -115,7 +115,6 @@ class Menu {
 		register_setting( 'cashier_settings_group', 'cashier_settings', [ $this, 'cashier_sanitize_settings' ] );
 	}
 
-
 	public function cashier_sanitize_settings( $input ) {
 		$input['options_secret_key']              = sanitize_text_field( $input['options_secret_key'] );
 		$input['options_publishable_key']         = sanitize_text_field( $input['options_publishable_key'] );

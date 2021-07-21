@@ -61,7 +61,7 @@ if ( isset( $_GET['do'] ) ) {
         <h1>Payment Form</h1>
         <div id="subscribe-form-intro-text"><p></p></div>
 
-        <form method="post" action="<? esc_url( admin_url( 'admin-post.php' ) ); ?>" name="form" id="subscribe-form">
+        <form method="post" action="<?= esc_url( admin_url( 'admin-post.php' ) ); ?>" name="form" id="subscribe-form">
             <table class="form-table" id="subscribe-form">
 
                 <tr valign="top">
@@ -98,44 +98,44 @@ if ( isset( $_GET['do'] ) ) {
 
             <h2 id="billing-details-title" class="elementor-heading-title elementor-size-default">Billing Details</h2>
 
-            <table>
-
-                <tr valign="top">
-                    <th scope="row">Cardholder Name*</th>
-                    <td><input type="text" id="cardholder-name" name="cardholder-name" required/></td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">Street Address*</th>
-                    <td><input type="text" id="street-address" name="street-address" required/></td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">Apartment, Suite, Unit, or Building</th>
-                    <td><input type="text" id="street-address-line-2" name="street-address-line-2"/></td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">City*</th>
-                    <td><input type="text" id="city" name="city" required/></td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">State*</th>
-                    <td><input type="text" id="state" name="state" required/></td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">Zip Code*</th>
-                    <td><input type="text" id="zip-code" name="zip-code" required/></td>
-                </tr>
-
-                <tr valign="top">
-                    <th scope="row">Country*</th>
-                    <td><?= $countries_dropdown; ?></td>
-                </tr>
-
-            </table>
+<!--            <table>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">Cardholder Name*</th>-->
+<!--                    <td><input type="text" id="cardholder-name" name="cardholder-name" required/></td>-->
+<!--                </tr>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">Street Address*</th>-->
+<!--                    <td><input type="text" id="street-address" name="street-address" required/></td>-->
+<!--                </tr>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">Apartment, Suite, Unit, or Building</th>-->
+<!--                    <td><input type="text" id="street-address-line-2" name="street-address-line-2"/></td>-->
+<!--                </tr>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">City*</th>-->
+<!--                    <td><input type="text" id="city" name="city" required/></td>-->
+<!--                </tr>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">State*</th>-->
+<!--                    <td><input type="text" id="state" name="state" required/></td>-->
+<!--                </tr>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">Zip Code*</th>-->
+<!--                    <td><input type="text" id="zip-code" name="zip-code" required/></td>-->
+<!--                </tr>-->
+<!---->
+<!--                <tr valign="top">-->
+<!--                    <th scope="row">Country*</th>-->
+<!--                    <td>--><?//= $countries_dropdown; ?><!--</td>-->
+<!--                </tr>-->
+<!---->
+<!--            </table>-->
 
             <div>
                 <label for="card-element">Credit or debit card:</label>
@@ -158,7 +158,7 @@ if ( isset( $_GET['do'] ) ) {
 
                     <input type="hidden" name="payment_method" id="payment_method" value=""/>
 
-                    <input type="hidden" name="action" value="stripe_builder_register_subscribe_form_handler"/>
+                    <input type="hidden" name="action" value="cashier_register_subscribe_form_handler"/>
 
                     <div id="card-errors" style="padding:20px; border:0px solid #333333;"></div>
 
@@ -303,28 +303,28 @@ if ( isset( $_GET['do'] ) ) {
             cardButton.addEventListener('click', async (event) => {
                     event.preventDefault();
 
-                    addressLine1 = document.getElementById('street-address').value;
-                    addressLine2 = document.getElementById('street-address-line-2').value;
-                    addressCity = document.getElementById('city').value;
-                    addressState = document.getElementById('state').value;
-                    addressCountry = document.getElementById('country').value;
-                    addressZipCode = document.getElementById('zip-code').value;
+                    // addressLine1 = document.getElementById('street-address').value;
+                    // addressLine2 = document.getElementById('street-address-line-2').value;
+                    // addressCity = document.getElementById('city').value;
+                    // addressState = document.getElementById('state').value;
+                    // addressCountry = document.getElementById('country').value;
+                    // addressZipCode = document.getElementById('zip-code').value;
 
                     //how about just add payment source here????????????
                     stripe.createPaymentMethod({
                         type: 'card',
                         card: card,
-                        billing_details: {
-                            name: cardHolderName,
-                            address: {
-                                line1: addressLine1,
-                                line2: addressLine2,
-                                city: addressCity,
-                                state: addressState,
-                                country: addressCountry,
-                                postal_code: addressZipCode
-                            }
-                        }
+                        // billing_details: {
+                        //     name: cardHolderName,
+                        //     address: {
+                        //         line1: addressLine1,
+                        //         line2: addressLine2,
+                        //         city: addressCity,
+                        //         state: addressState,
+                        //         country: addressCountry,
+                        //         postal_code: addressZipCode
+                        //     }
+                        // }
                     })
                         .then(function (result) {
 

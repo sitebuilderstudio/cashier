@@ -2,6 +2,8 @@
 
 namespace Cashier\Shortcode;
 
+use PHPMailer\PHPMailer\Exception;
+
 class Shortcode {
 
 	/**
@@ -151,18 +153,20 @@ class Shortcode {
 
 	public function cashier_register_subscribe_form_handler() {
 
+
 		$arr   = explode( "?", $_POST['subscription'], 2 );
 		$price = $arr[0];
 
-		//create wp user
+		// create wp user
 		$userdata = array(
 			'user_login' => $_POST['username'],
 			'user_email' => $_POST['email'],
 			'user_pass'  => $_POST['password'] // When creating an user, `user_pass` is expected.
 		);
-		$user_id  = wp_insert_user( $userdata );
 
-		//set user role to customer
+		$user_id = wp_insert_user( $userdata );
+
+		// set user role to customer
 		$user = new \WP_User( $user_id );
 		$user->set_role( 'customer' );
 
@@ -179,14 +183,14 @@ class Shortcode {
 
 		$stripe = new \Stripe\StripeClient( $cashier_options['options_secret_key'] );
 
-		\Stripe\Stripe::setApiKey( $cashier_options['options_secret_key'] );
+//		\Stripe\Stripe::setApiKey( $cashier_options['options_secret_key'] );
 
 		// create stripe customer
 		$customer = $stripe->customers->create( [
 			'name'        => $_POST['name'],
 			'email'       => $_POST['email'],
 			'description' => '',
-		]);
+		] );
 
 		//attach payment method to customer
 		$attach = $stripe->paymentMethods->attach(
@@ -204,16 +208,13 @@ class Shortcode {
 		update_user_meta( $user_id, 'cashier_stripe_id', $customer->id );
 		update_user_meta( $user_id, 'cashier_stripe_email', $customer->email );
 
-		//if there's a coupon
-		if ( isset( $_POST['coupon'] ) ) {
+		// if there's a coupon
+		if ( isset( $_POST['coupon'] ) && $_POST['coupon'] != "" ) {
 
 			//check the coupon
 			try {
+
 				// Use Stripe's library to make requests
-				/*
-				$stripe = new \Stripe\StripeClient(
-					$stripe_api_secret_key
-				);*/
 				$response = $stripe->coupons->retrieve( $_POST['coupon'], [] );
 
 				if ( $response->valid ) {
@@ -223,7 +224,7 @@ class Shortcode {
 						'trial_from_plan' => true,
 						'customer'        => $customer->id,
 						'items'           => [
-							[ 'price' => $price ],
+							[ 'price' => 'price_1JFFSLLJrATzBsWhnuMlYZUh' ],
 						],
 						'coupon'          => $_POST['coupon'],
 					] );
@@ -231,24 +232,25 @@ class Shortcode {
 				}
 
 			} catch ( Exception $e ) {
+				var_dump($e);
+			}
 
-				//echo 'Status is:' . $e->getHttpStatus() . '\n';
-				//echo 'Type is:' . $e->getError()->type . '\n';
-				//echo 'Code is:' . $e->getError()->code . '\n';
-				// param is '' in this case
-				//echo 'Param is:' . $e->getError()->param . '\n';
-				//echo 'Message is:' . $e->getError()->message . '\n';
-				//$response = "<span style='color: red;'>Coupon is not valid</span>";
+		} else {
 
-				//coupon not valid or is empty, run the subscription without coupon
+			try {
 				$subscription = $stripe->subscriptions->create( [
 					'trial_from_plan' => true,
 					'customer'        => $customer->id,
 					'items'           => [
-						[ 'price' => $price ],
+						[ 'price' => 'price_1JFFSLLJrATzBsWhnuMlYZUh' ],
 					]
 				] );
 
+				var_dump( $subscription );
+
+			} catch ( Exception $e ) {
+				var_dump( $e );
+				die( 'disappinted.' );
 			}
 
 		}
@@ -259,7 +261,6 @@ class Shortcode {
 		$url = $url . "?do=complete_registration&plan=" . $_POST['plan'];
 
 		nocache_headers();
-
 		if ( wp_safe_redirect( $url ) ) {
 			exit;
 		}

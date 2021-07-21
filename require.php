@@ -18,6 +18,7 @@ class CashierRequire {
 		require_once CASHIER_DIR_PATH . 'vendor/autoload.php';
 
 		new \Cashier\Admin\Menu();
+		new \Cashier\Admin\Role();
 		new \Cashier\Admin\Plan();
 		new \Cashier\Shortcode\Shortcode();
 	}
