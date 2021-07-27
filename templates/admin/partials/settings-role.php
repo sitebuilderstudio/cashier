@@ -13,7 +13,7 @@
 
             <tr valign="top">
                 <th scope="row">Roles</th>
-                <td><input type="text" name="role" id="role"></td>
+                <td><input type="text" name="role" id="role" required></td>
             </tr>
 
         </table>
