@@ -132,7 +132,7 @@ $results = $wpdb->get_results( $query );
 			?>
         </table>
         <p class="submit">
-            <input name="tier_group" type="hidden" value="<?= $tier_group ?>"/>
+            <input name="tier_group" type="hidden" value="<?php echo $tier_group; ?>"/>
             <input name="action" type="hidden" value="tiers_form_submit">
             <input type="submit" class="button-primary" value="Save Changes"/>
         </p>

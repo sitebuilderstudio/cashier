@@ -111,7 +111,7 @@
 			?>
         </table>
         <p class="submit">
-            <input name="user" type="hidden" value="<?= $uid ?>" />
+            <input name="user" type="hidden" value="<?php echo $uid ?>" />
             <input name="action" type="hidden" value="custom_tiers_form_submit">
             <input type="submit" class="button-primary" value="Save Changes" />
         </p>

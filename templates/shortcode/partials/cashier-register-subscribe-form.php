@@ -61,7 +61,7 @@ if ( isset( $_GET['do'] ) ) {
         <h1>Payment Form</h1>
         <div id="subscribe-form-intro-text"><p></p></div>
 
-        <form method="post" action="<?= esc_url( admin_url( 'admin-post.php' ) ); ?>" name="form" id="subscribe-form">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" name="form" id="subscribe-form">
             <table class="form-table" id="subscribe-form">
 
                 <tr valign="top">
@@ -152,9 +152,9 @@ if ( isset( $_GET['do'] ) ) {
                 <div>
 					<? wp_nonce_field( 'register_subscribe_form', 'security-code-here' ); ?>
 
-                    <input type="hidden" name="subscription" value="<?= $subscription; ?>"/>
+                    <input type="hidden" name="subscription" value="<?php echo $subscription; ?>"/>
 
-                    <input type="hidden" name="plan" value="<?= $plan; ?>"/>
+                    <input type="hidden" name="plan" value="<?php echo $plan; ?>"/>
 
                     <input type="hidden" name="payment_method" id="payment_method" value=""/>
 
@@ -174,7 +174,7 @@ if ( isset( $_GET['do'] ) ) {
         window.onload = (event) => {
 
             // All subsequent code goes here.
-            const stripe = Stripe('<?= $cashier_options["options_publishable_key"]; ?>');
+            const stripe = Stripe('<?php echo $cashier_options["options_publishable_key"]; ?>');
             const elements = stripe.elements();
             const card = elements.create('card', {
                     style: {

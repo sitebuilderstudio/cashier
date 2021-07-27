@@ -81,7 +81,7 @@
 					</select>
 				</td>
 				<td>
-					<input name="client" type="hidden" value="<?= $_GET['client'] ?>" />
+					<input name="client" type="hidden" value="<?php echo $_GET['client']; ?>" />
 					<input name="action" type="hidden" value="client_select_partner_form_handler">
 					<input type="submit" class="button-primary" value="Save" />
 				</td>
@@ -118,7 +118,7 @@
 							$last = get_user_meta( $user->ID, 'last_name', true );
 
 							echo "<option value=\"".$user->ID."\"";
-							// TODO change to meta_data sb_provider value
+                            // TODO change to meta_data sb_provider value
 							if($user->ID==$provider_uid){ echo " selected"; }
 							echo ">".$first." ".$last."</option>";
 
@@ -127,7 +127,7 @@
 					</select>
 				</td>
 				<td>
-					<input name="client" type="hidden" value="<?= $_GET['client'] ?>" />
+					<input name="client" type="hidden" value="<?php echo $_GET['client']; ?>" />
 					<input name="action" type="hidden" value="client_select_provider_form_handler">
 					<input type="submit" class="button-primary" value="Save" />
 				</td>

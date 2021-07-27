@@ -19,7 +19,7 @@
         </table>
 
         <p class="submit">
-			<? wp_nonce_field( 'nonce-add-role' ) ?>
+			<?php wp_nonce_field( 'nonce-add-role' ); ?>
             <input type="hidden" name="action" value="add_role">
             <input type="submit" class="button-primary" value="Save Role"/>
         </p>
@@ -45,15 +45,15 @@
         </thead>
 
         <tbody>
-		<?
+		<?php
 		$count = 1;
 
 		foreach ( $cashier_roles as $key => $value ) { ?>
             <tr>
-                <td><?= $count; ?></td>
-                <td><?= $value[1]; ?></td>
+                <td><?php echo $count; ?></td>
+                <td><?php echo $value[1]; ?></td>
                 <td>
-					<?
+					<?php
 					$user_obj = get_user_by( 'ID', $value[0] );
 					//					var_dump( $user_obj );
 					echo $user_obj->user_login;
