@@ -120,7 +120,7 @@ class Menu {
 		$input['options_publishable_key']         = sanitize_text_field( $input['options_publishable_key'] );
 		$input['options_active_campaign_api_url'] = sanitize_text_field( $input['options_active_campaign_api_url'] );
 		$input['options_active_campaign_api_key'] = sanitize_text_field( $input['options_active_campaign_api_key'] );
-		$input['option_notification_email']       = sanitize_text_field( $input['options_notification_email'] );
+//		$input['option_notification_email']       = sanitize_text_field( $input['options_notification_email'] );
 
 		return $input;
 	}
