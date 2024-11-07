@@ -20,7 +20,7 @@ error_reporting(E_ALL);
  * @wordpress-plugin
  * Plugin Name:       Cashier
  * Plugin URI:        https://wpcashier.com
- * Description:       WpCashier - Stripe plugin - by sitebuilderstudio.com
+ * Description:       Stripe plugin for WordPress
  * Version:           1.0.0
  * Author:            Joe Kneeland
  * Author URI:        https://sitebuilderstudio.com

@@ -39,15 +39,6 @@ class Admin
             array( 'Cashier\Admin\Role', 'cashier_role_settings_html' )
         );
 
-//        add_submenu_page(
-//            'cashier-payments',
-//            'Plans',
-//            'Plans',
-//            'manage_options',
-//            'cashier-plans',
-//            array( 'Cashier\Admin\Plans', 'render_list_page' )
-//        );
-
         // call register settings function
         add_action( 'admin_init', [ $this, 'cashier_register_settings' ] );
     }

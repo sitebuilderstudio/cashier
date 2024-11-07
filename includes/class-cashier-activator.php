@@ -34,6 +34,7 @@ class Cashier_Activator {
         $table_name = $wpdb->prefix . 'cash_products';
         $sql        = "CREATE TABLE $table_name (
           id int(11) NOT NULL AUTO_INCREMENT,
+          display_order int(11) DEFAULT 0,
           title varchar(250) NOT NULL,
           description text NULL,
           price float NOT NULL,
