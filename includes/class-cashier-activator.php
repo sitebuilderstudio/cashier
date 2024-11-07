@@ -30,7 +30,7 @@ class Cashier_Activator {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-        // invoices
+        // products
         $table_name = $wpdb->prefix . 'cash_products';
         $sql        = "CREATE TABLE $table_name (
           id int(11) NOT NULL AUTO_INCREMENT,
