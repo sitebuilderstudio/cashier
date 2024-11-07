@@ -68,7 +68,7 @@ class Cashier {
         // Initialize components
         new \Cashier\Admin\Admin();
         new \Cashier\Admin\Role();
-        new \Cashier\Admin\Plan();
+        new \Cashier\Admin\Plans();
         new \Cashier\Shortcode\Shortcode();
 
         // Add activation/deactivation hooks
