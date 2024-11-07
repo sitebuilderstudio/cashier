@@ -1,5 +1,4 @@
 <?php
-
 /*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -14,14 +13,14 @@ error_reporting(E_ALL);
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://sitebuilderstudio.com
+ * @link              https://wpcashier.com
  * @since             1.0.0
  * @package           Stripe_Builder
  *
  * @wordpress-plugin
  * Plugin Name:       Cashier
- * Plugin URI:        https://sitebuilderstudio.com
- * Description:       Stripe Builder Plugin by sitebuilderstudio.com
+ * Plugin URI:        https://wpcashier.com
+ * Description:       WpCashier - Stripe plugin - by sitebuilderstudio.com
  * Version:           1.0.0
  * Author:            Joe Kneeland
  * Author URI:        https://sitebuilderstudio.com
@@ -32,55 +31,67 @@ error_reporting(E_ALL);
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
+if (!defined('WPINC')) {
+    die;
 }
 
 /**
  * Define Constants
  */
-
-define( 'CASHIER_FILE_PATH', __FILE__ );
-define( 'CASHIER_DIR_PATH', plugin_dir_path( __FILE__ ) );
-define( 'CASHIER_DIR_URL', plugin_dir_url( __FILE__ ) );
-define( 'CASHIER_VERSION', '1.0.0' );
-
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-stripe-builder-activator.php
- */
-function activate_cashier() {
-	require_once CASHIER_DIR_PATH . 'includes/class-cashier-activator.php';
-	Cashier_Activator::database_setup();
-
-}
+define('CASHIER_FILE_PATH', __FILE__);
+define('CASHIER_DIR_PATH', plugin_dir_path(__FILE__));
+define('CASHIER_DIR_URL', plugin_dir_url(__FILE__));
+define('CASHIER_VERSION', '1.0.0');
 
 /**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-stripe-builder-deactivator.php
+ * Load required files
  */
-function deactivate_cashier() {
-	require_once CASHIER_DIR_PATH . 'includes/class-cashier-deactivator.php';
-	Cashier_Deactivator::deactivate();
+require_once CASHIER_DIR_PATH . 'includes/class-cashier-admin.php';
+require_once CASHIER_DIR_PATH . 'includes/admin/class-cashier-admin-roles.php';
+require_once CASHIER_DIR_PATH . 'includes/admin/class-cashier-admin-plans.php';
+require_once CASHIER_DIR_PATH . 'includes/public/class-cashier-public-shortcodes.php';
+
+class Cashier {
+    private static $instance = null;
+
+    public static function instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function __construct() {
+        // require vendor autoload file
+        require_once CASHIER_DIR_PATH . 'vendor/autoload.php';
+
+        // Initialize components
+        new \Cashier\Admin\Admin();
+        new \Cashier\Admin\Role();
+        new \Cashier\Admin\Plan();
+        new \Cashier\Shortcode\Shortcode();
+
+        // Add activation/deactivation hooks
+        register_activation_hook(__FILE__, array($this, 'activate'));
+        register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+    }
+
+    /**
+     * The code that runs during plugin activation.
+     */
+    public function activate() {
+        require_once CASHIER_DIR_PATH . 'includes/class-cashier-activator.php';
+        Cashier_Activator::database_setup();
+    }
+
+    /**
+     * The code that runs during plugin deactivation.
+     */
+    public function deactivate() {  // Changed from 'activate' to 'deactivate'
+        require_once CASHIER_DIR_PATH . 'includes/class-cashier-deactivator.php';
+        Cashier_Deactivator::deactivate();
+    }
 }
 
-
-register_activation_hook( __FILE__, 'activate_cashier' );
-register_deactivation_hook( __FILE__, 'deactivate_cashier' );
-
-
-function preint( $value ) {
-	echo '<pre>';
-	print_r( $value );
-	echo '</pre>';
-}
-
-function preintq( $q ) {
-	echo "<div style='margin:20px 16px 0px 0; padding: 16px; border-left:3px solid teal; background: hsl(50deg 50% 100%);' class='preintq'>$q</div>";
-}
-
-
-/**
- * Requiring Files
- */
-require_once( CASHIER_DIR_PATH . 'require.php' );
+// Initialize the plugin
+add_action('plugins_loaded', array('Cashier', 'instance'));

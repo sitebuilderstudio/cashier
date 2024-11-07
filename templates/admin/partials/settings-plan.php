@@ -66,3 +66,37 @@ $plans = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
         </table>
     <?php endif; ?>
 </div>
+
+<form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
+    <table class="form-table">
+        <tr valign="top">
+            <th scope="row">Title</th>
+            <td><input type="text" name="plan_title" required></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Price</th>
+            <td><input type="number" step="0.01" name="plan_price" required></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Subscription</th>
+            <td><input type="checkbox" name="plan_subscription"></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Billing Interval (months)</th>
+            <td><input type="number" name="plan_billing_interval"></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Stripe Product ID</th>
+            <td><input type="text" name="plan_stripe_product_id" required></td>
+        </tr>
+        <tr valign="top">
+            <th scope="row">Stripe Price ID</th>
+            <td><input type="text" name="plan_stripe_price_id" required></td>
+        </tr>
+    </table>
+    <input type="hidden" name="action" value="add_plan">
+    <?php wp_nonce_field('nonce-add-plan'); ?>
+    <p class="submit">
+        <input type="submit" class="button-primary" value="Save Plan">
+    </p>
+</form>
