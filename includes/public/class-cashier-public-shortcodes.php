@@ -3,6 +3,7 @@
 namespace Cashier\Shortcode;
 
 use PHPMailer\PHPMailer\Exception;
+use Cashier_Template_Loader;
 
 class Shortcode {
 
@@ -54,46 +55,85 @@ class Shortcode {
         // internal
         wp_enqueue_style( 'cashier', CASHIER_DIR_URL . 'assets/css/cashier-style.css' );
         wp_enqueue_script( 'cashier', CASHIER_DIR_URL . 'assets/js/cashier-script.js', [ 'jquery' ], '', true );
-        wp_localize_script( 'cashier', 'cashier_object',
-            array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'we_value' => 1234 ) );
+        wp_localize_script('cashier', 'cashier_object', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'stripe_public_key' => $this->get_stripe_public_key(),
+            'nonce' => wp_create_nonce('cashier_ajax_nonce')
+        ]);
+    }
+
+    private function get_stripe_public_key(){
+        $cashier_options       = get_option( 'cashier_settings' );
+        return $cashier_options['options_publishable_key'];
     }
 
     public function cashier_register_subscribe_form() {
-        include_once CASHIER_DIR_PATH . "templates/shortcode/partials/cashier-register-subscribe-form.php";
+        $template_loader = Cashier_Template_Loader::get_instance();
+
+        $args = array(
+            // Any variables you want to pass to template
+        );
+
+        return $template_loader->get_template_part(
+            'shortcode/partials/cashier-register-subscribe-form.php',
+            $args
+        );
     }
 
     public function check_username() {
-        if ( isset( $_POST['username'] ) ) {
-            $username = $_POST['username'];
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'cashier_ajax_nonce')) {
+            wp_send_json_error(['message' => 'Invalid security token']);
+        }
 
-            // check if the username is taken
-            $user_id = username_exists( $username );
-            if ( ! username_exists( $username ) ) {
-                $response = "<span style='color: green;'>Username Available.</span>";
-            } else {
-                $response = "<span style='color: red;'>Not Available.</span>";
+        if (isset($_POST['username'])) {
+            $username = sanitize_user($_POST['username']);
+
+            if (strlen($username) < 3) {
+                wp_send_json_error([
+                    'message' => 'Username must be at least 3 characters long'
+                ]);
             }
 
-            echo $response;
-            wp_die();
+            if (!username_exists($username)) {
+                wp_send_json_success([
+                    'message' => 'Username is available'
+                ]);
+            } else {
+                wp_send_json_error([
+                    'message' => 'Username is not available'
+                ]);
+            }
         }
+        wp_send_json_error(['message' => 'Username is required']);
     }
 
     public function check_email() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'cashier_ajax_nonce')) {
+            wp_send_json_error(['message' => 'Invalid security token']);
+        }
 
-        if ( isset( $_POST['email'] ) ) {
+        if (isset($_POST['email'])) {
+            $email = sanitize_email($_POST['email']);
 
-            $email = $_POST['email'];
-
-            if ( ! email_exists( $email ) ) {
-                $response = "<span style='color: green;'>Email Available.</span>";
-            } else {
-                $response = "<span style='color: red;'>Address is already in use.</span>";
+            if (!is_email($email)) {
+                wp_send_json_error([
+                    'message' => 'Please enter a valid email address'
+                ]);
             }
 
-            echo $response;
-            wp_die();
+            if (!email_exists($email)) {
+                wp_send_json_success([
+                    'message' => 'Email is available'
+                ]);
+            } else {
+                wp_send_json_error([
+                    'message' => 'Email address is already in use'
+                ]);
+            }
         }
+        wp_send_json_error(['message' => 'Email is required']);
     }
 
     public function check_coupon() {
