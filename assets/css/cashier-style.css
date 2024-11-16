@@ -119,6 +119,24 @@
     font-size: 14px;
 }
 
+.payment-error-container {
+    margin-bottom: 20px;
+}
+
+.error-message {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c00;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
 .button {
     background: #0073aa;
     color: white;

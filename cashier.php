@@ -47,7 +47,6 @@ define('CASHIER_VERSION', '1.0.0');
  * Load required files
  */
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-admin.php';
-require_once CASHIER_DIR_PATH . 'includes/admin/class-cashier-admin-roles.php';
 require_once CASHIER_DIR_PATH . 'includes/admin/class-cashier-admin-plans.php';
 require_once CASHIER_DIR_PATH . 'includes/public/class-cashier-public-shortcodes.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-template-loader.php';
@@ -68,7 +67,6 @@ class Cashier {
 
         // Initialize components
         new \Cashier\Admin\Admin();
-        new \Cashier\Admin\Role();
         new \Cashier\Admin\Plans();
         new \Cashier\Shortcode\Shortcode();
 

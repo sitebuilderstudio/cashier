@@ -132,23 +132,62 @@ jQuery(document).ready(function($) {
     // Form submission
     $('#registration-payment-form').submit(function(event) {
         event.preventDefault();
+        const form = $(this);
         const submitButton = $('#submit-button');
-        submitButton.prop('disabled', true);
-        submitButton.text('Processing...');
+        const paymentError = $('#payment-error-message');
+        const cardErrors = $('#card-errors');
+
+        // Clear previous errors
+        paymentError.hide().text('');
+        cardErrors.text('');
+
+        // Disable submit button and show loading state
+        submitButton.prop('disabled', true).text('Processing...');
 
         // Create payment method
-        stripe.createPaymentMethod('card', cardElement).then(function(result) {
-            if (result.error) {
-                $('#card-errors').text(result.error.message);
-                submitButton.prop('disabled', false);
-                submitButton.text('Complete Registration');
-            } else {
+        stripe.createPaymentMethod('card', cardElement)
+            .then(function(result) {
+                if (result.error) {
+                    throw result.error;
+                }
+
                 // Add payment method ID to form
                 $('#payment_method').val(result.paymentMethod.id);
+
                 // Submit form
-                event.target.submit();
-            }
-        });
+                return $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    dataType: 'json'
+                });
+            })
+            .then(function(response) {
+                if (response.success) {
+                    window.location.href = response.data.redirect_url;
+                } else {
+                    throw new Error(response.data.message);
+                }
+            })
+            .catch(function(error) {
+                let errorMessage = error.message;
+
+                // Display error message in the dedicated container
+                paymentError
+                    .text(errorMessage)
+                    .show()
+                    .addClass('error-message');
+
+                // Reset button state
+                submitButton
+                    .prop('disabled', false)
+                    .text('Complete Registration');
+
+                // Scroll to error message
+                $('html, body').animate({
+                    scrollTop: paymentError.offset().top - 100
+                }, 500);
+            });
     });
 
     // Helper functions
@@ -211,4 +250,5 @@ jQuery(document).ready(function($) {
             $('#password_match').text('Passwords do not match').css('color', 'red');
         }
     }
+
 });

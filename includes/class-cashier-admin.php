@@ -25,18 +25,9 @@ class Admin
             'Cashier',
             'manage_options',
             'cashier-payments',
-            array( $this, 'cashier_api_settings_html' ),
+            array( $this, 'cashier_settings_html' ),
             'dashicons-chart-bar',
             40
-        );
-
-        add_submenu_page(
-            'cashier-payments',
-            'Roles',
-            'Roles',
-            'manage_options',
-            'cashier-roles',
-            array( 'Cashier\Admin\Role', 'cashier_role_settings_html' )
         );
 
         // call register settings function
@@ -48,6 +39,7 @@ class Admin
     }
 
     public function cashier_sanitize_settings( $input ) {
+        $input['options_thank_you_page']         = absint( $input['options_thank_you_page']);
         $input['options_secret_key']              = sanitize_text_field( $input['options_secret_key'] );
         $input['options_publishable_key']         = sanitize_text_field( $input['options_publishable_key'] );
         $input['options_active_campaign_api_url'] = sanitize_text_field( $input['options_active_campaign_api_url'] );
@@ -55,23 +47,11 @@ class Admin
         return $input;
     }
 
-    public function cashier_api_settings_html() {
-        include_once CASHIER_DIR_PATH . "templates/admin/partials/settings-api.php";
+    public function cashier_settings_html() {
+        include_once CASHIER_DIR_PATH . "templates/admin/partials/settings.php";
     }
 
     public function cashier_plan_settings_html() {
         include_once CASHIER_DIR_PATH . "templates/admin/partials/settings-plan.php";
-    }
-
-    public function cashier_tiers_view() {
-        include_once CASHIER_DIR_PATH . "templates/admin/partials/tiers-view.php";
-    }
-
-    function cashier_connect_sub_accounts_view() {
-        include_once CASHIER_DIR_PATH . "templates/admin/partials/custom-tiers.php";
-    }
-
-    function cashier_connect_clients_view() {
-        include_once CASHIER_DIR_PATH . "templates/admin/partials/clients.php";
     }
 }

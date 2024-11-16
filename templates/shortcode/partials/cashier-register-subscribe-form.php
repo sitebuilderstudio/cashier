@@ -16,6 +16,14 @@ $form_args = array(
             <h2>Create Your Account</h2>
 
             <div class="form-row">
+                <label for="name">
+                    Name <span class="required">*</span>
+                </label>
+                <input type="text" id="name" name="name" required>
+                <div id="name_response" class="response-message"></div>
+            </div>
+
+            <div class="form-row">
                 <label for="username">
                     Username <span class="required">*</span>
                 </label>
@@ -56,16 +64,14 @@ $form_args = array(
         <div class="form-step" id="step-2" style="display: none;">
             <h3>Payment Information</h3>
 
+            <div class="payment-error-container">
+                <div id="payment-error-message" class="error-message" style="display: none;"></div>
+            </div>
+
             <div class="form-group">
                 <label for="card-element">Credit or Debit Card</label>
                 <div id="card-element"></div>
                 <div id="card-errors" role="alert"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="coupon">Coupon Code (optional)</label>
-                <input type="text" id="coupon" name="coupon">
-                <div id="coupon_response"></div>
             </div>
 
             <input type="hidden" name="payment_method" id="payment_method">

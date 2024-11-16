@@ -2,8 +2,10 @@
 
 namespace Cashier\Shortcode;
 
-use PHPMailer\PHPMailer\Exception;
 use Cashier_Template_Loader;
+use Exception;
+use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\CardException;
 
 class Shortcode {
 
@@ -192,117 +194,136 @@ class Shortcode {
     }
 
     public function cashier_register_subscribe_form_handler() {
+        try {
+            // Create WP user first but don't set role yet
+            $userdata = array(
+                'user_login' => sanitize_user($_POST['username']),
+                'user_email' => sanitize_email($_POST['email']),
+                'user_pass'  => $_POST['password']
+            );
 
+            $user_id = wp_insert_user($userdata);
 
-        $arr   = explode( "?", $_POST['subscription'], 2 );
-        $price = $arr[0];
-
-        // create wp user
-        $userdata = array(
-            'user_login' => $_POST['username'],
-            'user_email' => $_POST['email'],
-            'user_pass'  => $_POST['password'] // When creating an user, `user_pass` is expected.
-        );
-
-        $user_id = wp_insert_user( $userdata );
-
-        // set user role to customer
-        $user = new \WP_User( $user_id );
-        $user->set_role( 'customer' );
-
-        // On success.
-        if ( ! is_wp_error( $user_id ) ) {
-            //echo "<hr />WP User created : ". $user_id."<hr />";
-        } else {
-            echo "<p>Error creating new user.";
-            exit;
-        }
-
-        //get keys from plugin options
-        $cashier_options = get_option( 'cashier_settings' );
-
-        $stripe = new \Stripe\StripeClient( $cashier_options['options_secret_key'] );
-
-//		\Stripe\Stripe::setApiKey( $cashier_options['options_secret_key'] );
-
-        // create stripe customer
-        $customer = $stripe->customers->create( [
-            'name'        => $_POST['name'],
-            'email'       => $_POST['email'],
-            'description' => '',
-        ] );
-
-        //attach payment method to customer
-        $attach = $stripe->paymentMethods->attach(
-            $_POST['payment_method'],
-            [ 'customer' => $customer->id ]
-        );
-
-        //set payment method as default
-        $stripe->customers->update(
-            $customer->id,
-            [ "invoice_settings" => [ "default_payment_method" => $_POST['payment_method'] ] ]
-        );
-
-        // add the customer stripe info to usermenta
-        update_user_meta( $user_id, 'cashier_stripe_id', $customer->id );
-        update_user_meta( $user_id, 'cashier_stripe_email', $customer->email );
-
-        // if there's a coupon
-        if ( isset( $_POST['coupon'] ) && $_POST['coupon'] != "" ) {
-
-            //check the coupon
-            try {
-
-                // Use Stripe's library to make requests
-                $response = $stripe->coupons->retrieve( $_POST['coupon'], [] );
-
-                if ( $response->valid ) {
-
-                    //run the subscription with the coupon
-                    $subscription = $stripe->subscriptions->create( [
-                        'trial_from_plan' => true,
-                        'customer'        => $customer->id,
-                        'items'           => [
-                            [ 'price' => 'price_1JFFSLLJrATzBsWhnuMlYZUh' ],
-                        ],
-                        'coupon'          => $_POST['coupon'],
-                    ] );
-
-                }
-
-            } catch ( Exception $e ) {
-                var_dump($e);
+            if (is_wp_error($user_id)) {
+                throw new Exception($user_id->get_error_message());
             }
 
-        } else {
+            $cashier_options = get_option('cashier_settings');
+            $stripe = new \Stripe\StripeClient($cashier_options['options_secret_key']);
+
+            // Create stripe customer
+            try {
+                $customer = $stripe->customers->create([
+                    'name'        => sanitize_text_field($_POST['name']),
+                    'email'       => sanitize_email($_POST['email']),
+                    'description' => '',
+                ]);
+            } catch (CardException $e) {
+                // Delete the WP user since payment failed
+                wp_delete_user($user_id);
+                throw new Exception($this->get_payment_error_message($e));
+            }
 
             try {
-                $subscription = $stripe->subscriptions->create( [
+                // Attach payment method to customer
+                $stripe->paymentMethods->attach(
+                    $_POST['payment_method'],
+                    ['customer' => $customer->id]
+                );
+
+                // Set as default payment method
+                $stripe->customers->update(
+                    $customer->id,
+                    ["invoice_settings" => ["default_payment_method" => $_POST['payment_method']]]
+                );
+            } catch (CardException $e) {
+                // Clean up: delete customer and WP user
+                $stripe->customers->delete($customer->id);
+                wp_delete_user($user_id);
+
+                // Return JSON response for AJAX handling
+                wp_send_json_error([
+                    'message' => $this->get_payment_error_message($e),
+                    'code' => $e->getError()->code
+                ]);
+                exit;
+            }
+
+            // Create subscription
+            try {
+                $subscription_data = [
                     'trial_from_plan' => true,
                     'customer'        => $customer->id,
                     'items'           => [
-                        [ 'price' => 'price_1JFFSLLJrATzBsWhnuMlYZUh' ],
+                        ['price' => 'price_1QHazCJ1HMveTqNbuyQoZwXD'],
                     ]
-                ] );
+                ];
 
-                var_dump( $subscription );
+                if (!empty($_POST['coupon'])) {
+                    $coupon = $stripe->coupons->retrieve($_POST['coupon']);
+                    if ($coupon->valid) {
+                        $subscription_data['coupon'] = $_POST['coupon'];
+                    }
+                }
 
-            } catch ( Exception $e ) {
-                var_dump( $e );
-                die( 'disappinted.' );
+                $subscription = $stripe->subscriptions->create($subscription_data);
+
+                // Only set role and metadata after successful subscription
+                $user = new \WP_User($user_id);
+                $user->set_role('customer');
+                update_user_meta($user_id, 'cashier_stripe_id', $customer->id);
+                update_user_meta($user_id, 'cashier_stripe_email', $customer->email);
+
+                // Get thank you page URL from settings
+                $cashier_options = get_option('cashier_settings');
+                $thank_you_page = $cashier_options['options_thank_you_page'] ?? home_url();
+
+                // Add query parameters to thank you page URL
+                $url = add_query_arg(
+                    array(
+                        'registration' => 'complete',
+                        'status' => 'success'
+                    ),
+                    $thank_you_page
+                );
+
+                wp_safe_redirect($url);
+
+            } catch (CardException $e) {
+                // Clean up: delete customer and WP user
+                $stripe->customers->delete($customer->id);
+                wp_delete_user($user_id);
+                throw new Exception($this->get_payment_error_message($e));
+            } catch (ApiErrorException $e) {
+                // Handle any other Stripe API errors
+                $stripe->customers->delete($customer->id);
+                wp_delete_user($user_id);
+                throw new Exception('An error occurred while processing your payment. Please try again later.');
             }
 
-        }
-
-        $url = strtok( $_POST['_wp_http_referer'], '?' );
-
-        //redirect user to referrer with get var for do complete signup
-        $url = $url . "?do=complete_registration&plan=" . $_POST['plan'];
-
-        nocache_headers();
-        if ( wp_safe_redirect( $url ) ) {
+        } catch (Exception $e) {
+            // Return JSON response for AJAX handling
+            wp_send_json_error([
+                'message' => $e->getMessage(),
+                'code' => isset($e->getError) ? $e->getError()->code : 'general_error'
+            ]);
             exit;
         }
+    }
+
+    private function get_payment_error_message($e): string
+    {
+        $error_code = $e->getError()->code;
+
+        $error_messages = [
+            'card_declined' => 'Your card was declined. Please try a different card.',
+            'insufficient_funds' => 'Your card has insufficient funds. Please try a different card.',
+            'expired_card' => 'Your card has expired. Please try a different card.',
+            'incorrect_cvc' => 'The security code (CVC) was incorrect. Please check and try again.',
+            'processing_error' => 'An error occurred while processing your card. Please try again.',
+            'incorrect_number' => 'The card number is incorrect. Please check and try again.'
+        ];
+
+        return $error_messages[$error_code] ?? 'An error occurred while processing your payment. Please try again.';
     }
 }

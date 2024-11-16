@@ -1,5 +1,5 @@
 <div class="wrap">
-    <h2>API Settings</h2>
+    <h2>Settings</h2>
     <hr />
 
     <form method="post" action="options.php">
@@ -8,6 +8,23 @@
         $settings = get_option('cashier_settings');
         ?>
         <table class="form-table">
+
+            <tr><th><h3>Checkout Settings</h3></th></tr>
+
+            <tr valign="top">
+                <th scope="row">Thank You Page</th>
+                <td>
+                    <?php
+                    $selected_page = isset($settings['options_thank_you_page']) ? $settings['options_thank_you_page'] : '';
+                    wp_dropdown_pages(array(
+                        'name' => 'cashier_settings[options_thank_you_page]',
+                        'show_option_none' => __('Select a page'),
+                        'selected' => $selected_page,
+                    ));
+                    ?>
+                    <p class="description">Select the page to redirect customers after successful checkout.</p>
+                </td>
+            </tr>
 
             <tr><th><h3>Stripe</h3></th></tr>
 
