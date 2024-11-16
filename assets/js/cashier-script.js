@@ -8,7 +8,8 @@ jQuery(document).ready(function($) {
     cardElement.mount('#card-element');
 
     // Form step handling
-    $('#next-step').click(function() {
+    $('#next-step').click(function(e) {
+        e.preventDefault();
         // Validate first step
         if (validateStep1()) {
             $('#step-1').hide();
