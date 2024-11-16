@@ -110,7 +110,7 @@ jQuery(document).ready(function($) {
     $('#confirm_password').on('keyup change', function() {
         validatePasswordMatch();
     });
-    
+
     // Form submission
     $('#registration-payment-form').submit(function(event) {
         event.preventDefault();

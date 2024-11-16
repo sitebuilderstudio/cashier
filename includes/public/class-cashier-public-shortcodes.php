@@ -9,19 +9,6 @@ use Stripe\Exception\CardException;
 
 class Shortcode {
 
-    /**
-     * Create only one instance so that it may not Repeat
-     *
-     * @since 1.0.0
-     */
-    public static function instance() {
-        if ( is_null( self::$_instance ) ) {
-            self::$_instance = new self();
-        }
-
-        return self::$_instance;
-    }
-
     public function __construct() {
 
         // create shortcodes
