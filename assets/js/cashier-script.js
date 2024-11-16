@@ -110,25 +110,7 @@ jQuery(document).ready(function($) {
     $('#confirm_password').on('keyup change', function() {
         validatePasswordMatch();
     });
-
-    // Coupon validation
-    $("#coupon").blur(function() {
-        var coupon = $(this).val().trim();
-        if (coupon != '') {
-            $.ajax({
-                url: cashier_object.ajax_url,
-                type: 'post',
-                data: {
-                    coupon: coupon,
-                    action: 'check_coupon'
-                },
-                success: function(response) {
-                    $('#coupon_response').html(response);
-                }
-            });
-        }
-    });
-
+    
     // Form submission
     $('#registration-payment-form').submit(function(event) {
         event.preventDefault();
@@ -163,14 +145,19 @@ jQuery(document).ready(function($) {
                 });
             })
             .then(function(response) {
-                if (response.success) {
+                console.log('Response:', response); // Debug logging
+
+                if (response.success && response.data && response.data.redirect_url) {
+                    // Successful subscription - redirect to thank you page
                     window.location.href = response.data.redirect_url;
                 } else {
-                    throw new Error(response.data.message);
+                    throw new Error(response.data ? response.data.message : 'An unexpected error occurred');
                 }
             })
             .catch(function(error) {
-                let errorMessage = error.message;
+                console.error('Error:', error); // Debug logging
+
+                let errorMessage = error.message || 'An unexpected error occurred';
 
                 // Display error message in the dedicated container
                 paymentError

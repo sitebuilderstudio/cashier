@@ -279,15 +279,20 @@ class Shortcode {
                 $thank_you_page = $cashier_options['options_thank_you_page'] ?? home_url();
 
                 // Add query parameters to thank you page URL
-                $url = add_query_arg(
+                $redirect_url = add_query_arg(
                     array(
                         'registration' => 'complete',
                         'status' => 'success'
                     ),
-                    $thank_you_page
+                    get_permalink($thank_you_page)
                 );
 
-                wp_safe_redirect($url);
+                // Return success response with redirect URL
+                wp_send_json_success([
+                    'redirect_url' => $redirect_url,
+                    'message' => 'Registration successful!'
+                ]);
+                exit;
 
             } catch (CardException $e) {
                 // Clean up: delete customer and WP user
