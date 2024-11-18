@@ -1,13 +1,12 @@
-<?php
+<?php // cashier/includes/admin/class-cashier-public-shortcodes.php
 
-namespace Cashier\Shortcode;
+// Exit if accessed directly
+if (!defined('ABSPATH')) exit;
 
-use Cashier_Template_Loader;
-use Exception;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\CardException;
 
-class Shortcode {
+class Cashier_Shortcodes {
 
     public function __construct() {
 

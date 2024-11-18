@@ -60,10 +60,10 @@ class Cashier {
         require_once CASHIER_DIR_PATH . 'vendor/autoload.php';
 
         // Initialize components
-        new \Cashier\Cashier_Init();
-        new \Cashier\Admin\Admin();
-        new \Cashier\Admin\Plans();
-        new \Cashier\Shortcode\Shortcode();
+        new Cashier_Init();
+        new Cashier_Admin();
+        new Cashier_Plans();
+        new Cashier_Shortcodes();
 
         // Add activation/deactivation hooks
         register_activation_hook(__FILE__, array($this, 'activate'));
@@ -92,4 +92,4 @@ class Cashier {
 }
 
 // Initialize the plugin
-add_action('plugins_loaded', array('Cashier', 'instance'));
+new Cashier();

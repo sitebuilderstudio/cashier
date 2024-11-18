@@ -1,6 +1,7 @@
-<?php
+<?php // cashier/includes/class-cashier-init.php
 
-namespace Cashier;
+// Exit if accessed directly
+if (!defined('ABSPATH')) exit;
 
 class Cashier_Init
 {
@@ -8,7 +9,7 @@ class Cashier_Init
         add_action('init', array($this, 'setup_roles'));
     }
 
-    private function setup_roles(): void
+    public function setup_roles(): void
     {
         if (!get_role('subscriber')) {
             add_role(

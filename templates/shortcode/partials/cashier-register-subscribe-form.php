@@ -1,4 +1,6 @@
-<?php
+<?php // cashier/templates/shortcode/partials/cashier-register-subscribe-form.php
+
+// Exit if accessed directly
 if (!defined('ABSPATH')) exit;
 
 $form_args = array(

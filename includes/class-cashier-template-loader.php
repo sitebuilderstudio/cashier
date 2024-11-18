@@ -1,26 +1,9 @@
-<?php
+<?php // cashier/includes/class-cashier-template-loader.php
+
 // Exit if accessed directly
 if (!defined('ABSPATH')) exit;
 
 class Cashier_Template_Loader {
-    /**
-     * Instance of this class.
-     *
-     * @var object
-     */
-    protected static $instance = null;
-
-    /**
-     * Get instance of the class
-     *
-     * @return object
-     */
-    public static function get_instance() {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
 
     /**
      * Get template path

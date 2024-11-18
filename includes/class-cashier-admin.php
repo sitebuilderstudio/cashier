@@ -1,19 +1,10 @@
-<?php
+<?php // cashier/includes/class-cashier-admin.php
 
-namespace Cashier\Admin;
+// Exit if accessed directly
+if (!defined('ABSPATH')) exit;
 
-class Admin
+class Cashier_Admin
 {
-    private static $instance = null;
-
-    public static function init()
-    {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
     public function __construct()
     {
         add_action( 'admin_menu', [ $this, 'cashier_register_admin_menus' ] );

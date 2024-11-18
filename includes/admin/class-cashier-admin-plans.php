@@ -1,8 +1,9 @@
-<?php
-// includes/admin/class-cashier-admin-plans.php
-namespace Cashier\Admin;
+<?php // includes/admin/class-cashier-admin-plans.php
 
-class Plans {
+// Exit if accessed directly
+if (!defined('ABSPATH')) exit;
+
+class Cashier_Plans {
     private static $instance = null;
 
     public static function init() {

@@ -1,4 +1,7 @@
-<?php
+<?php // cashier/includes/class-cashier-deactivator.php
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) exit;
 
 /**
  * Fired during plugin deactivation
