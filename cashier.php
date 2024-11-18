@@ -50,22 +50,17 @@ require_once CASHIER_DIR_PATH . 'includes/class-cashier-admin.php';
 require_once CASHIER_DIR_PATH . 'includes/admin/class-cashier-admin-plans.php';
 require_once CASHIER_DIR_PATH . 'includes/public/class-cashier-public-shortcodes.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-template-loader.php';
+require_once CASHIER_DIR_PATH . 'includes/class-cashier-init.php';
+
 
 class Cashier {
-    private static $instance = null;
-
-    public static function instance() {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
 
     public function __construct() {
         // require vendor autoload file
         require_once CASHIER_DIR_PATH . 'vendor/autoload.php';
 
         // Initialize components
+        new \Cashier\Cashier_Init();
         new \Cashier\Admin\Admin();
         new \Cashier\Admin\Plans();
         new \Cashier\Shortcode\Shortcode();
@@ -80,7 +75,8 @@ class Cashier {
     /**
      * The code that runs during plugin activation.
      */
-    public function activate() {
+    public function activate(): void
+    {
         require_once CASHIER_DIR_PATH . 'includes/class-cashier-activator.php';
         Cashier_Activator::database_setup();
     }
@@ -88,7 +84,8 @@ class Cashier {
     /**
      * The code that runs during plugin deactivation.
      */
-    public function deactivate() {  // Changed from 'activate' to 'deactivate'
+    public function deactivate(): void
+    {  // Changed from 'activate' to 'deactivate'
         require_once CASHIER_DIR_PATH . 'includes/class-cashier-deactivator.php';
         Cashier_Deactivator::deactivate();
     }
