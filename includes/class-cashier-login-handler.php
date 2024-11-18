@@ -19,9 +19,10 @@ class Cashier_Login_Handler
             if ($stripe_customer_id) {
                 try {
 
-                    \Stripe\Stripe::setApiKey(get_option('cashier_stripe_secret_key'));
+                    $cashier_options = get_option('cashier_settings');
+                    $stripe = new \Stripe\StripeClient($cashier_options['options_secret_key']);
 
-                    $session = \Stripe\BillingPortal\Session::create([
+                    $session = $stripe->billingPortal->sessions->create([
                         'customer' => $stripe_customer_id,
                         'return_url' => home_url(),
                     ]);
