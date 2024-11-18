@@ -56,7 +56,7 @@ class Cashier_Shortcodes {
     }
 
     public function cashier_register_subscribe_form() {
-        $template_loader = Cashier_Template_Loader::get_instance();
+        $template_loader = new Cashier_Template_Loader;
 
         $args = array(
             // Any variables you want to pass to template

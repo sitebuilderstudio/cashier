@@ -51,6 +51,7 @@ require_once CASHIER_DIR_PATH . 'includes/admin/class-cashier-admin-plans.php';
 require_once CASHIER_DIR_PATH . 'includes/public/class-cashier-public-shortcodes.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-template-loader.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-init.php';
+require_once CASHIER_DIR_PATH . 'includes/class-cashier-login-handler.php';
 
 
 class Cashier {
@@ -64,6 +65,7 @@ class Cashier {
         new Cashier_Admin();
         new Cashier_Plans();
         new Cashier_Shortcodes();
+        new Cashier_Login_Handler();
 
         // Add activation/deactivation hooks
         register_activation_hook(__FILE__, array($this, 'activate'));
