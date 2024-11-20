@@ -15,7 +15,7 @@ if (empty($args['price_id'])) {
 <div class="cashier-register-form">
     <form id="registration-payment-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="signup-form">
         <input type="hidden" name="action" value="cashier_register_subscribe_form_handler">
-        <input type="hidden" name="subscription" value="<?php echo esc_attr($args['price_id']); ?>">
+        <input type="hidden" name="price_id" value="<?php echo esc_attr($args['price_id']); ?>">
         <?php wp_nonce_field('cashier_register_nonce', 'cashier_register_nonce'); ?>
 
         <?php if (!$args['is_logged_in']) : ?>

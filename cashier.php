@@ -52,6 +52,7 @@ require_once CASHIER_DIR_PATH . 'includes/public/class-cashier-public-shortcodes
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-template-loader.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-init.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-login-handler.php';
+require_once CASHIER_DIR_PATH . 'includes/class-cashier-portal-handler.php';
 
 
 class Cashier {

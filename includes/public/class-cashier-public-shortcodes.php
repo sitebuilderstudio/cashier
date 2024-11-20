@@ -260,7 +260,7 @@ class Cashier_Shortcodes {
                     'trial_from_plan' => true,
                     'customer'        => $customer->id,
                     'items'           => [
-                        ['price' => 'price_1QHazCJ1HMveTqNbuyQoZwXD'],
+                        ['price' => $_POST['price_id']],
                     ]
                 ];
 
@@ -275,7 +275,7 @@ class Cashier_Shortcodes {
 
                 // Only set role and metadata after successful subscription
                 $user = new \WP_User($user_id);
-                $user->set_role('customer');
+                $user->set_role('subscriber');
                 update_user_meta($user_id, 'cashier_stripe_id', $customer->id);
                 update_user_meta($user_id, 'cashier_stripe_email', $customer->email);
 
