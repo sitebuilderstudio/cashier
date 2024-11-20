@@ -10,7 +10,7 @@ class Cashier_Portal_Handler {
         $this->wpdb = $wpdb;
 
         $cashier_options = get_option('cashier_settings');
-        $this->stripe = new \Stripe\StripeClient($cashier_options['options_secret_key']);
+        $this->stripe = new \Stripe\StripeClient($cashier_options['cashier_secret_key']);
     }
 
     public function create_portal_session($stripe_customer_id) {

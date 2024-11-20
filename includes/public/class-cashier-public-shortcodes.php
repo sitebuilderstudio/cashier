@@ -52,7 +52,7 @@ class Cashier_Shortcodes {
 
     private function get_stripe_public_key(){
         $cashier_options       = get_option( 'cashier_settings' );
-        return $cashier_options['options_publishable_key'];
+        return $cashier_options['cashier_publishable_key'];
     }
 
     public function cashier_register_subscribe_form() {
@@ -77,7 +77,8 @@ class Cashier_Shortcodes {
         $template_loader = new Cashier_Template_Loader;
 
         $args = array(
-            // Any variables you want to pass to template
+            'price_id' => sanitize_text_field($_GET['price_id']),
+            'is_logged_in' => is_user_logged_in()
         );
 
         return $template_loader->get_template_part(
@@ -145,7 +146,7 @@ class Cashier_Shortcodes {
     public function check_coupon() {
 
         $cashier_options       = get_option( 'cashier_settings' );
-        $stripe_api_secret_key = $cashier_options['options_secret_key'];
+        $stripe_api_secret_key = $cashier_options['cashier_secret_key'];
 
         $coupon = $_POST['coupon'];
 
@@ -213,7 +214,7 @@ class Cashier_Shortcodes {
             }
 
             $cashier_options = get_option('cashier_settings');
-            $stripe = new \Stripe\StripeClient($cashier_options['options_secret_key']);
+            $stripe = new \Stripe\StripeClient($cashier_options['cashier_secret_key']);
 
             // Create stripe customer
             try {
@@ -280,7 +281,7 @@ class Cashier_Shortcodes {
 
                 // Get thank you page URL from settings
                 $cashier_options = get_option('cashier_settings');
-                $thank_you_page = $cashier_options['options_thank_you_page'] ?? home_url();
+                $thank_you_page = $cashier_options['cashier_thank_you_page'] ?? home_url();
 
                 // Add query parameters to thank you page URL
                 $redirect_url = add_query_arg(

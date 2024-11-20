@@ -15,9 +15,9 @@
                 <th scope="row">Plan Selection Page</th>
                 <td>
                     <?php
-                    $selected_page = isset($settings['options_select_plan_page']) ? $settings['options_select_plan_page'] : '';
+                    $selected_page = isset($settings['cashier_select_plan_page']) ? $settings['cashier_select_plan_page'] : '';
                     wp_dropdown_pages(array(
-                        'name' => 'cashier_settings[options_select_plan_page]',
+                        'name' => 'cashier_settings[cashier_select_plan_page]',
                         'show_option_none' => __('Select a page'),
                         'selected' => $selected_page,
                     ));
@@ -30,9 +30,9 @@
                 <th scope="row">Register / Subscribe Page</th>
                 <td>
                     <?php
-                    $selected_page = isset($settings['options_register_subscribe_page']) ? $settings['options_register_subscribe_page'] : '';
+                    $selected_page = isset($settings['cashier_register_subscribe_page']) ? $settings['cashier_register_subscribe_page'] : '';
                     wp_dropdown_pages(array(
-                        'name' => 'cashier_settings[options_register_subscribe_page]',
+                        'name' => 'cashier_settings[cashier_register_subscribe_page]',
                         'show_option_none' => __('Select a page'),
                         'selected' => $selected_page,
                     ));
@@ -45,9 +45,9 @@
                 <th scope="row">Thank You Page</th>
                 <td>
                     <?php
-                    $selected_page = isset($settings['options_thank_you_page']) ? $settings['options_thank_you_page'] : '';
+                    $selected_page = isset($settings['cashier_thank_you_page']) ? $settings['cashier_thank_you_page'] : '';
                     wp_dropdown_pages(array(
-                        'name' => 'cashier_settings[options_thank_you_page]',
+                        'name' => 'cashier_settings[cashier_thank_you_page]',
                         'show_option_none' => __('Select a page'),
                         'selected' => $selected_page,
                     ));
@@ -60,25 +60,25 @@
 
             <tr valign="top">
                 <th scope="row">Publishable API Key</th>
-                <td><input type="text" name="cashier_settings[options_publishable_key]" value="<?php
-                    if(isset($settings['options_publishable_key'])) { echo esc_attr($settings['options_publishable_key']); } ?>"</td>
+                <td><input type="text" name="cashier_settings[cashier_publishable_key]" value="<?php
+                    if(isset($settings['cashier_publishable_key'])) { echo esc_attr($settings['cashier_publishable_key']); } ?>"</td>
             </tr>
 
             <tr valign="top">
                 <th scope="row">Secret API Key</th>
-                <td><input type="text" name="cashier_settings[options_secret_key]" value="<?php if(isset($settings['options_secret_key'])) { echo esc_attr($settings['options_secret_key']); } ?>"</td>
+                <td><input type="text" name="cashier_settings[cashier_secret_key]" value="<?php if(isset($settings['cashier_secret_key'])) { echo esc_attr($settings['cashier_secret_key']); } ?>"</td>
             </tr>
 
             <tr><th><h3>Active Campaign</h3></th></tr>
 
             <tr valign="top">
                 <th scope="row">API URL</th>
-                <td><input type="text" name="cashier_settings[options_active_campaign_api_url]" value="<?php if(isset($settings['options_active_campaign_api_url'])) { echo esc_attr($settings['options_active_campaign_api_url']); } ?>"</td>
+                <td><input type="text" name="cashier_settings[cashier_active_campaign_api_url]" value="<?php if(isset($settings['cashier_active_campaign_api_url'])) { echo esc_attr($settings['cashier_active_campaign_api_url']); } ?>"</td>
             </tr>
 
             <tr valign="top">
                 <th scope="row">API Key</th>
-                <td><input type="text" name="cashier_settings[options_active_campaign_api_key]" value="<?php if(isset($settings['options_active_campaign_api_key'])) { echo esc_attr($settings['options_active_campaign_api_key']); } ?>"</td>
+                <td><input type="text" name="cashier_settings[cashier_active_campaign_api_key]" value="<?php if(isset($settings['cashier_active_campaign_api_key'])) { echo esc_attr($settings['cashier_active_campaign_api_key']); } ?>"</td>
             </tr>
 
         </table>

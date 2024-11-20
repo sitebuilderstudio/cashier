@@ -30,13 +30,13 @@ class Cashier_Admin
     }
 
     public function cashier_sanitize_settings( $input ) {
-        $input['options_select_plan_page']         = absint( $input['options_select_plan_page']);
-        $input['options_register_subscribe_page']         = absint( $input['options_register_subscribe_page']);
-        $input['options_thank_you_page']         = absint( $input['options_thank_you_page']);
-        $input['options_secret_key']              = sanitize_text_field( $input['options_secret_key'] );
-        $input['options_publishable_key']         = sanitize_text_field( $input['options_publishable_key'] );
-        $input['options_active_campaign_api_url'] = sanitize_text_field( $input['options_active_campaign_api_url'] );
-        $input['options_active_campaign_api_key'] = sanitize_text_field( $input['options_active_campaign_api_key'] );
+        $input['cashier_select_plan_page']         = absint( $input['cashier_select_plan_page']);
+        $input['cashier_register_subscribe_page']         = absint( $input['cashier_register_subscribe_page']);
+        $input['cashier_thank_you_page']         = absint( $input['cashier_thank_you_page']);
+        $input['cashier_secret_key']              = sanitize_text_field( $input['cashier_secret_key'] );
+        $input['cashier_publishable_key']         = sanitize_text_field( $input['cashier_publishable_key'] );
+        $input['cashier_active_campaign_api_url'] = sanitize_text_field( $input['cashier_active_campaign_api_url'] );
+        $input['cashier_active_campaign_api_key'] = sanitize_text_field( $input['cashier_active_campaign_api_key'] );
         return $input;
     }
 
