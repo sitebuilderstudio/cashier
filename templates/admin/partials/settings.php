@@ -12,6 +12,36 @@
             <tr><th><h3>Checkout Settings</h3></th></tr>
 
             <tr valign="top">
+                <th scope="row">Plan Selection Page</th>
+                <td>
+                    <?php
+                    $selected_page = isset($settings['options_select_plan_page']) ? $settings['options_select_plan_page'] : '';
+                    wp_dropdown_pages(array(
+                        'name' => 'cashier_settings[options_select_plan_page]',
+                        'show_option_none' => __('Select a page'),
+                        'selected' => $selected_page,
+                    ));
+                    ?>
+                    <p class="description">Select the page where plans are displayed for customer to choose from. This plan must contain links to the 'Register Subscribe' page with a Stripe Price ID in the url, such as /signup?price_id=price_123xyz</p>
+                </td>
+            </tr>
+
+            <tr valign="top">
+                <th scope="row">Register / Subscribe Page</th>
+                <td>
+                    <?php
+                    $selected_page = isset($settings['options_register_subscribe_page']) ? $settings['options_register_subscribe_page'] : '';
+                    wp_dropdown_pages(array(
+                        'name' => 'cashier_settings[options_register_subscribe_page]',
+                        'show_option_none' => __('Select a page'),
+                        'selected' => $selected_page,
+                    ));
+                    ?>
+                    <p class="description">Select the page where the Cashier shortcode [cashier_register_subscribe_form] is located. If one is not already made create one then select it here. This is the url the links from Plan Selection page should point to.</p>
+                </td>
+            </tr>
+
+            <tr valign="top">
                 <th scope="row">Thank You Page</th>
                 <td>
                     <?php

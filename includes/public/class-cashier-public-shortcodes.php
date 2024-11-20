@@ -56,6 +56,24 @@ class Cashier_Shortcodes {
     }
 
     public function cashier_register_subscribe_form() {
+
+        // Redirect to billing portal if user is logged in and has an active subscription
+        if (is_user_logged_in()) {
+            $user = wp_get_current_user();
+            $stripe_customer_id = get_user_meta($user->ID, 'cashier_stripe_id', true);
+
+            if ($stripe_customer_id) {
+                $portal_handler = new Cashier_Portal_Handler();
+                $session = $portal_handler->create_portal_session($stripe_customer_id);
+
+                if ($session) {
+                    wp_redirect($session->url);
+                    exit;
+                }
+            }
+        }
+
+        // Else load the register-subscribe form
         $template_loader = new Cashier_Template_Loader;
 
         $args = array(

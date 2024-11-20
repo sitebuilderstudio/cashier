@@ -30,6 +30,8 @@ class Cashier_Admin
     }
 
     public function cashier_sanitize_settings( $input ) {
+        $input['options_select_plan_page']         = absint( $input['options_select_plan_page']);
+        $input['options_register_subscribe_page']         = absint( $input['options_register_subscribe_page']);
         $input['options_thank_you_page']         = absint( $input['options_thank_you_page']);
         $input['options_secret_key']              = sanitize_text_field( $input['options_secret_key'] );
         $input['options_publishable_key']         = sanitize_text_field( $input['options_publishable_key'] );
