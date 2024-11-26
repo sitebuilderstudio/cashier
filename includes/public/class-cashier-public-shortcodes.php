@@ -76,9 +76,21 @@ class Cashier_Shortcodes {
         // Else load the register-subscribe form
         $template_loader = new Cashier_Template_Loader;
 
+        $user_data = array();
+        if(is_user_logged_in()) {
+            $user = wp_get_current_user();
+            ray($user);
+            $user_data = array(
+                'user_login' => $user->user_login,
+                'user_email' => $user->user_email
+            );
+            ray($user_data);
+        }
+
         $args = array(
             'price_id' => sanitize_text_field($_GET['price_id']),
-            'is_logged_in' => is_user_logged_in()
+            'is_logged_in' => is_user_logged_in(),
+            'user_data' => $user_data
         );
 
         return $template_loader->get_template_part(
@@ -199,85 +211,133 @@ class Cashier_Shortcodes {
     }
 
     public function cashier_register_subscribe_form_handler() {
-        try {
+
+        ray($_POST);
+
+        $cashier_options = get_option('cashier_settings');
+
+        if(!is_user_logged_in()){
+            $name = sanitize_text_field($_POST['name']);
+            $username = sanitize_user($_POST['username']);
+            $email = sanitize_email($_POST['email']);
+            $password = sanitize_text_field($_POST['password']);
             // Create WP user first but don't set role yet
             $userdata = array(
-                'user_login' => sanitize_user($_POST['username']),
-                'user_email' => sanitize_email($_POST['email']),
-                'user_pass'  => $_POST['password']
+                'display_name' => $name,
+                'user_login' => $username,
+                'user_email' => $email,
+                'user_pass'  => $password
             );
 
             $user_id = wp_insert_user($userdata);
-
             if (is_wp_error($user_id)) {
-                throw new Exception($user_id->get_error_message());
+                // Send the error back to the AJAX request
+                wp_send_json_error([
+                    'message' => $user_id->get_error_message(),
+                ]);
+                exit;
             }
+        }else{
+            $user_id = get_current_user_id();
+            $user = get_userdata($user_id);
+            $name = trim($user->first_name . ' ' . $user->last_name);
+            $username = $user->user_login;
+            $email = $user->user_email;
+            $password = '';
+        }
+        if(isset($_POST['coupon'])){
+            $coupon = sanitize_text_field($_POST['coupon']);
+        }
 
-            $cashier_options = get_option('cashier_settings');
+        $price_id = sanitize_text_field($_POST['price_id']);
+        $payment_method = sanitize_text_field($_POST['payment_method']);
+
+        try {
+
             $stripe = new \Stripe\StripeClient($cashier_options['cashier_secret_key']);
 
             // Create stripe customer
             try {
-                $customer = $stripe->customers->create([
-                    'name'        => sanitize_text_field($_POST['name']),
-                    'email'       => sanitize_email($_POST['email']),
-                    'description' => '',
-                ]);
+
+                $stripe_customer_id = get_user_meta($user_id, 'cashier_stripe_id', true);
+
+                if (!$stripe_customer_id) {
+
+                    $customer = $stripe->customers->create([
+                        'name'        => $name,
+                        'email'       => $email,
+                        'description' => '',
+                    ]);
+
+                    $stripe_customer_id = $customer->id;
+
+                    update_user_meta($user_id, 'cashier_stripe_id', $stripe_customer_id);
+                }
+
             } catch (CardException $e) {
-                // Delete the WP user since payment failed
-                wp_delete_user($user_id);
+                // Delete the WP user since payment failed, if they're not logged in
+                if (!is_user_logged_in()) {
+                    wp_delete_user($user_id);
+                }
                 throw new Exception($this->get_payment_error_message($e));
             }
 
             try {
+
                 // Attach payment method to customer
                 $stripe->paymentMethods->attach(
-                    $_POST['payment_method'],
-                    ['customer' => $customer->id]
+                    $payment_method,
+                    ['customer' => $stripe_customer_id]
                 );
 
                 // Set as default payment method
                 $stripe->customers->update(
-                    $customer->id,
-                    ["invoice_settings" => ["default_payment_method" => $_POST['payment_method']]]
+                    $stripe_customer_id,
+                    ["invoice_settings" => ["default_payment_method" => $payment_method]]
                 );
+
             } catch (CardException $e) {
-                // Clean up: delete customer and WP user
-                $stripe->customers->delete($customer->id);
-                wp_delete_user($user_id);
+                // Clean up: delete customer and WP user, if they're not logged in
+                if (!is_user_logged_in()) {
+                    $stripe->customers->delete($stripe_customer_id);
+                    wp_delete_user($user_id);
+                }
 
                 // Return JSON response for AJAX handling
                 wp_send_json_error([
                     'message' => $this->get_payment_error_message($e),
                     'code' => $e->getError()->code
                 ]);
-                exit;
+                throw new Exception($this->get_payment_error_message($e));
             }
 
             // Create subscription
             try {
+
                 $subscription_data = [
                     'trial_from_plan' => true,
-                    'customer'        => $customer->id,
+                    'customer'        => $stripe_customer_id,
                     'items'           => [
-                        ['price' => $_POST['price_id']],
+                        ['price' => $price_id],
                     ]
                 ];
 
+                // Handle coupon if provided
                 if (!empty($_POST['coupon'])) {
-                    $coupon = $stripe->coupons->retrieve($_POST['coupon']);
+                    $coupon = $stripe->coupons->retrieve($coupon);
                     if ($coupon->valid) {
-                        $subscription_data['coupon'] = $_POST['coupon'];
+                        $subscription_data['coupon'] = $coupon;
                     }
                 }
 
-                $subscription = $stripe->subscriptions->create($subscription_data);
+                // Create subscription
+                $stripe->subscriptions->create($subscription_data);
 
                 // Only set role and metadata after successful subscription
                 $user = new \WP_User($user_id);
                 $user->set_role('subscriber');
-                update_user_meta($user_id, 'cashier_stripe_id', $customer->id);
-                update_user_meta($user_id, 'cashier_stripe_email', $customer->email);
+                update_user_meta($user_id, 'cashier_stripe_id', $stripe_customer_id);
+                update_user_meta($user_id, 'cashier_stripe_email', $email);
 
                 // Get thank you page URL from settings
                 $cashier_options = get_option('cashier_settings');
@@ -301,13 +361,13 @@ class Cashier_Shortcodes {
 
             } catch (CardException $e) {
                 // Clean up: delete customer and WP user
-                $stripe->customers->delete($customer->id);
-                wp_delete_user($user_id);
+                // $stripe->customers->delete($stripe_customer_id);
+                // wp_delete_user($user_id);
                 throw new Exception($this->get_payment_error_message($e));
             } catch (ApiErrorException $e) {
                 // Handle any other Stripe API errors
-                $stripe->customers->delete($customer->id);
-                wp_delete_user($user_id);
+                // $stripe->customers->delete($stripe_customer_id);
+                // wp_delete_user($user_id);
                 throw new Exception('An error occurred while processing your payment. Please try again later.');
             }
 

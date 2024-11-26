@@ -119,6 +119,11 @@ jQuery(document).ready(function($) {
         const paymentError = $('#payment-error-message');
         const cardErrors = $('#card-errors');
 
+        // DEBUGGING: Log form data
+        console.log('Form Action: ' + form.attr('action'));
+
+        console.log('Form data:', form.serialize()); // Debug logging
+
         // Clear previous errors
         paymentError.hide().text('');
         cardErrors.text('');
@@ -145,7 +150,7 @@ jQuery(document).ready(function($) {
                 });
             })
             .then(function(response) {
-                console.log('Response:', response); // Debug logging
+                console.log('Response:', response.data); // Debug logging
 
                 if (response.success && response.data && response.data.redirect_url) {
                     // Successful subscription - redirect to thank you page

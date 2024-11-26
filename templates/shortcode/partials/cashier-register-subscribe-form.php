@@ -12,8 +12,9 @@ if (empty($args['price_id'])) {
 }
 ?>
 
-<div class="cashier-register-form">
-    <form id="registration-payment-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="signup-form">
+<div class="cashier-container">
+    <div class="cashier-register-form">
+    <form id="registration-payment-form" method="post" action="<?php echo admin_url('admin-post.php'); ?>" class="signup-form">
         <input type="hidden" name="action" value="cashier_register_subscribe_form_handler">
         <input type="hidden" name="price_id" value="<?php echo esc_attr($args['price_id']); ?>">
         <?php wp_nonce_field('cashier_register_nonce', 'cashier_register_nonce'); ?>
@@ -54,13 +55,9 @@ if (empty($args['price_id'])) {
                 </div>
 
                 <div class="form-row">
-                    <button type="button" id="next-step" class="button button-primary">Continue to Payment</button>
+                    <button type="button" id="next-step" class="fl-button">Continue to Payment</button>
                 </div>
             </div>
-        <?php else: ?>
-            <!-- Pre-fill hidden fields for logged-in users -->
-            <input type="hidden" name="name" value="<?php echo esc_attr($args['user_data']->display_name); ?>">
-            <input type="hidden" name="email" value="<?php echo esc_attr($args['user_data']->user_email); ?>">
         <?php endif; ?>
 
         <!-- Step 2: Payment Information -->
@@ -80,8 +77,9 @@ if (empty($args['price_id'])) {
             <input type="hidden" name="payment_method" id="payment_method">
 
             <div class="form-buttons">
-                <button type="submit" id="submit-button" class="button button-primary">Complete Registration</button>
+                <button type="submit" id="submit-button" class="fl-button">Complete Registration</button>
             </div>
         </div>
     </form>
+</div>
 </div>
