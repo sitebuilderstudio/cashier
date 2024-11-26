@@ -210,8 +210,6 @@ class Cashier_Shortcodes {
      * Handle form submission
      */
     public function cashier_register_subscribe_form_handler() {
-        ray($_POST);
-
         try {
             $user_id = $this->handle_user_creation();
             $stripe_customer_id = $this->handle_stripe_customer($user_id);
