@@ -2,6 +2,12 @@
 // Exit if accessed directly
 if (!defined('ABSPATH')) exit;
 
+// if logged in as anything other than a subscriber, echo the error message and return early
+if(is_user_logged_in() &&!current_user_can('subscriber')) {
+    echo '<div class="error">Only guests or logged-in users who are customers may access this page.</div>';
+    return;
+}
+
 $form_args = array(
     'nonce' => wp_create_nonce('cashier_register_nonce'),
 );
