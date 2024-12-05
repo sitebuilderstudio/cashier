@@ -19,7 +19,13 @@ class Cashier_Shortcodes {
      */
     private function init_hooks() {
         // Shortcodes
-        add_shortcode('cashier_register_subscribe_form', [$this, 'cashier_register_subscribe_form']);
+        add_shortcode('cashier_register_subscribe_form', function() {
+            return $this->cashier_form_shortcode('register');
+        });
+
+        add_shortcode('cashier_magic_link_subscribe_form', function() {
+            return $this->cashier_form_shortcode('magic-link');
+        });
 
         // Scripts
         add_action('wp_enqueue_scripts', [$this, 'load_scripts']);
@@ -51,9 +57,9 @@ class Cashier_Shortcodes {
      * Initialize form handlers
      */
     private function init_form_handlers() {
-        $handler = 'cashier_register_subscribe_form_handler';
-        add_action("admin_post_{$handler}", [$this, $handler]);
-        add_action("admin_post_nopriv_{$handler}", [$this, $handler]);
+        $handler = 'cashier_subscribe_submit_handler';
+        add_action("admin_post_{$handler}", [$this, 'subscribe_submit_handler']);
+        add_action("admin_post_nopriv_{$handler}", [$this, 'subscribe_submit_handler']);
     }
 
     /**
@@ -82,21 +88,22 @@ class Cashier_Shortcodes {
     }
 
     /**
-     * Handle the register/subscribe form shortcode
+     * Handle the form shortcodes
      */
-    public function cashier_register_subscribe_form() {
+    public function cashier_form_shortcode($formName) {
         if ($portal_url = $this->check_existing_subscription()) {
             wp_redirect($portal_url);
             exit;
         }
 
-        return $this->render_registration_form();
+        return $this->render_subscribe_form($formName);
     }
 
     /**
      * Check if user has existing subscription
      */
-    private function check_existing_subscription() {
+    private function check_existing_subscription(): bool|string
+    {
         if (!is_user_logged_in()) {
             return false;
         }
@@ -116,7 +123,8 @@ class Cashier_Shortcodes {
     /**
      * Render the registration form
      */
-    private function render_registration_form() {
+    private function render_subscribe_form($formName): string
+    {
         $template_loader = new Cashier_Template_Loader;
         $user_data = $this->get_user_data();
 
@@ -127,10 +135,28 @@ class Cashier_Shortcodes {
         ];
 
         return $template_loader->get_template_part(
-            'shortcode/partials/cashier-register-subscribe-form.php',
+            'shortcode/partials/cashier-'.$formName.'-subscribe-form.php',
             $args
         );
     }
+
+    /**
+     * Handle form submission
+     */
+    public function subscribe_submit_handler(): void
+    {
+        try {
+            $user_id = $this->handle_user_creation();
+            $stripe_customer_id = $this->handle_stripe_customer($user_id);
+            $this->handle_payment_method($stripe_customer_id);
+            $this->create_subscription($stripe_customer_id, $user_id);
+
+            $this->send_success_response();
+        } catch (Exception $e) {
+            $this->handle_error($e);
+        }
+    }
+
 
     /**
      * Get current user data if logged in
@@ -206,43 +232,107 @@ class Cashier_Shortcodes {
         wp_die();
     }
 
-    /**
-     * Handle form submission
-     */
-    public function cashier_register_subscribe_form_handler() {
-        try {
-            $user_id = $this->handle_user_creation();
-            $stripe_customer_id = $this->handle_stripe_customer($user_id);
-            $this->handle_payment_method($stripe_customer_id);
-            $this->create_subscription($stripe_customer_id, $user_id);
-
-            $this->send_success_response();
-        } catch (Exception $e) {
-            $this->handle_error($e);
-        }
-    }
 
     /**
      * Handle user creation or retrieval
+     * @throws Exception
      */
     private function handle_user_creation() {
         if (is_user_logged_in()) {
             return get_current_user_id();
         }
 
-        $userdata = [
-            'display_name' => sanitize_text_field($_POST['name']),
-            'user_login' => sanitize_user($_POST['username']),
-            'user_email' => sanitize_email($_POST['email']),
-            'user_pass' => sanitize_text_field($_POST['password'])
-        ];
-
-        $user_id = wp_insert_user($userdata);
+        $user_id = wp_insert_user($this->create_user_data_array());
         if (is_wp_error($user_id)) {
             throw new Exception($user_id->get_error_message());
         }
 
         return $user_id;
+    }
+
+    /**
+     * Create user data array for wp insert user
+     * @throws Exception
+     */
+    private function create_user_data_array(): array
+    {
+        $name = sanitize_text_field($_POST['name']);
+        $email = sanitize_email($_POST['email']);
+
+        // If it's magic link form, generate a unique username and password
+        if(isset($_POST['magic_link']) && $_POST['magic_link'] === 'true') {
+            $username = $this->generate_unique_username_from_email($email);
+            $password = wp_generate_password(12, false);
+        }else{
+            $username = sanitize_user($_POST['username']);
+            $password = sanitize_text_field($_POST['password']);
+        }
+
+        $parsed_name = $this->parse_full_name($name);
+
+        return [
+            'first_name' => $parsed_name['first_name'],
+            'last_name' => $parsed_name['last_name'],
+            'user_nicename' => $name,
+            'nickname' => $name,
+            'display_name' => $name,
+            'user_email' => $email,
+            'user_login' => $username,
+            'user_pass' => $password,
+        ];
+    }
+
+    /**
+     * Create a unique username from email
+     */
+    private function generate_unique_username_from_email($email): string
+    {
+        // Initial username from email (remove @ and .)
+        $base_username = sanitize_user(str_replace(['@', '.'], '', $email));
+        $username = $base_username;
+        $counter = 1;
+
+        // Keep checking and incrementing until we find an available username
+        while (username_exists($username)) {
+            $username = $base_username . $counter;
+            $counter++;
+
+            // Prevent infinite loop by setting a reasonable limit
+            if ($counter > 100) {
+                throw new Exception('Unable to generate a unique username after 100 attempts');
+            }
+        }
+
+        return $username;
+    }
+
+    /**
+     * Get first and last name from full name
+     */
+
+    private function parse_full_name(string $full_name): array
+    {
+        // Trim and normalize spaces
+        $full_name = trim(preg_replace('/\s+/', ' ', $full_name));
+        $name_parts = explode(' ', $full_name);
+
+        // If only one word, use it as first name
+        if (count($name_parts) === 1) {
+            return [
+                'first_name' => $name_parts[0],
+                'last_name' => ''
+            ];
+        }
+
+        // Get last word as last name
+        $last_name = array_pop($name_parts);
+        // Everything else is first name
+        $first_name = implode(' ', $name_parts);
+
+        return [
+            'first_name' => $first_name,
+            'last_name' => $last_name
+        ];
     }
 
     /**
@@ -269,7 +359,8 @@ class Cashier_Shortcodes {
     /**
      * Handle payment method attachment
      */
-    private function handle_payment_method($stripe_customer_id) {
+    private function handle_payment_method($stripe_customer_id): void
+    {
         $stripe = new \Stripe\StripeClient($this->cashier_options['cashier_secret_key']);
         $payment_method = sanitize_text_field($_POST['payment_method']);
 
@@ -282,7 +373,8 @@ class Cashier_Shortcodes {
     /**
      * Create subscription
      */
-    private function create_subscription($stripe_customer_id, $user_id) {
+    private function create_subscription($stripe_customer_id, $user_id): void
+    {
         $stripe = new \Stripe\StripeClient($this->cashier_options['cashier_secret_key']);
 
         $subscription_data = [
@@ -308,7 +400,8 @@ class Cashier_Shortcodes {
     /**
      * Send success response
      */
-    private function send_success_response() {
+    private function send_success_response(): void
+    {
         $thank_you_page = $this->cashier_options['cashier_thank_you_page'] ?? home_url();
         $redirect_url = add_query_arg(
             ['registration' => 'complete', 'status' => 'success'],
@@ -324,7 +417,8 @@ class Cashier_Shortcodes {
     /**
      * Handle errors
      */
-    private function handle_error(Exception $e) {
+    private function handle_error(Exception $e): void
+    {
         wp_send_json_error([
             'message' => $this->get_payment_error_message($e),
             'code' => isset($e->getError) ? $e->getError()->code : 'general_error'
@@ -334,7 +428,8 @@ class Cashier_Shortcodes {
     /**
      * Verify nonce
      */
-    private function verify_nonce() {
+    private function verify_nonce(): void
+    {
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'cashier_ajax_nonce')) {
             wp_send_json_error(['message' => 'Invalid security token']);
         }

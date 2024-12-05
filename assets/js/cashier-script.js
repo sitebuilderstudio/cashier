@@ -119,7 +119,7 @@ jQuery(document).ready(function($) {
         });
 
         // Form submission
-        $('#registration-payment-form').submit(function(event) {
+        $('#cashier-subscribe-form').submit(function(event) {
             event.preventDefault();
             const form = $(this);
             const submitButton = $('#submit-button');
@@ -129,6 +129,11 @@ jQuery(document).ready(function($) {
             // Clear previous errors
             paymentError.hide().text('');
             cardErrors.text('');
+
+            if(!validateMagicLinkSubscibeForm()) {
+                paymentError.show().text('Please complete the payment form');
+                return;
+            }
 
             // Disable submit button and show loading state
             submitButton.prop('disabled', true).text('Processing...');
@@ -199,6 +204,23 @@ jQuery(document).ready(function($) {
 
             if (password !== confirmPassword) {
                 alert('Passwords do not match');
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateMagicLinkSubscibeForm() {
+            const name = $('#name').val().trim();
+            const email = $('#email').val().trim();
+
+            if (!name || !email) {
+                alert('Please fill in all required fields');
+                return false;
+            }
+
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address');
                 return false;
             }
 

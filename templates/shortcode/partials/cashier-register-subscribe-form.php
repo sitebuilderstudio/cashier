@@ -20,8 +20,8 @@ if (empty($args['price_id'])) {
 
 <div class="cashier-container">
     <div class="cashier-register-form">
-    <form id="registration-payment-form" method="post" action="<?php echo admin_url('admin-post.php'); ?>" class="signup-form">
-        <input type="hidden" name="action" value="cashier_register_subscribe_form_handler">
+    <form id="cashier-subscribe-form" method="post" action="<?php echo admin_url('admin-post.php'); ?>" class="signup-form">
+        <input type="hidden" name="action" value="cashier_subscribe_submit_handler">
         <input type="hidden" name="price_id" value="<?php echo esc_attr($args['price_id']); ?>">
         <?php wp_nonce_field('cashier_register_nonce', 'cashier_register_nonce'); ?>
 
