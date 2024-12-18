@@ -53,6 +53,7 @@ require_once CASHIER_DIR_PATH . 'includes/class-cashier-template-loader.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-init.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-login-handler.php';
 require_once CASHIER_DIR_PATH . 'includes/class-cashier-portal-handler.php';
+require_once CASHIER_DIR_PATH . 'includes/class-cashier-wp-api.php';
 
 
 class Cashier {
@@ -67,6 +68,7 @@ class Cashier {
         new Cashier_Plans();
         new Cashier_Shortcodes();
         new Cashier_Login_Handler();
+        new Cashier_WP_API();
 
         // Add activation/deactivation hooks
         register_activation_hook(__FILE__, array($this, 'activate'));

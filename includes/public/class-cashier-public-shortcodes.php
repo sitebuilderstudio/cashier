@@ -102,7 +102,7 @@ class Cashier_Shortcodes {
     /**
      * Check if user has existing subscription
      */
-    private function check_existing_subscription(): bool|string
+    private function check_existing_subscription()
     {
         if (!is_user_logged_in()) {
             return false;
