@@ -14,9 +14,6 @@ class Cashier_WP_API
 
     public function register_routes()
     {
-        // write to debug.log that we're here
-        error_log('Cashier_WP_API: register_routes()');
-
         // Get user by email
         register_rest_route('cashier/v1', '/user-by-email', array(
             'methods' => 'GET',
@@ -60,7 +57,7 @@ class Cashier_WP_API
         // Update user metadata
         register_rest_route('cashier/v1', '/user-metadata/(?P<id>\d+)', array(
             'methods' => 'POST',
-            'callback' => 'update_user_metadata',
+            'callback' => [ $this, 'update_user_metadata' ],
             'permission_callback' => function () {
                 return current_user_can('edit_users');
             },
